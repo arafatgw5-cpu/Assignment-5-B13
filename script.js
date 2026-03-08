@@ -1,56 +1,56 @@
 // LOGIN
 
-function handleLogin(){
+function handleLogin() {
 
-let username=document.getElementById("username").value
-let password=document.getElementById("password").value
+    let username = document.getElementById("username").value
+    let password = document.getElementById("password").value
 
-if(username==="admin" && password==="admin123"){
+    if (username === "admin" && password === "admin123") {
 
-window.location.href="main.html"
+        window.location.href = "main.html"
 
-}else{
+    } else {
 
-alert("Invalid credentials")
+        alert("Invalid credentials")
+
+    }
 
 }
+const API = "https://phi-lab-server.vercel.app/api/v1/lab/issues"
 
-}
-const API="https://phi-lab-server.vercel.app/api/v1/lab/issues"
+const container = document.getElementById("issuesContainer")
 
-const container=document.getElementById("issuesContainer")
-
-const loader=document.getElementById("loader")
+const loader = document.getElementById("loader")
 
 // LOAD ALL
 
-async function loadAll(){
+async function loadAll() {
 
-loader.classList.remove("hidden")
+    loader.classList.remove("hidden")
 
-const res=await fetch(API)
+    const res = await fetch(API)
 
-const data=await res.json()
+    const data = await res.json()
 
-displayIssues(data.data)
+    displayIssues(data.data)
 
-loader.classList.add("hidden")
+    loader.classList.add("hidden")
 
-} 
+}
 // DISPLAY ISSUES
 
-function displayIssues(issues){
+function displayIssues(issues) {
 
-container.innerHTML=""
+    container.innerHTML = ""
 
-issues.forEach(issue=>{
+    issues.forEach(issue => {
 
-let border=issue.status==="open"
-?"border-t-4 border-green-500"
-:"border-t-4 border-purple-500"
+        let border = issue.status === "open"
+            ? "border-t-4 border-green-500"
+            : "border-t-4 border-purple-500"
 
 
-const card=`
+        const card = `
 <div onclick="openModal(${issue.id})"
 class="bg-white p-4 rounded shadow cursor-pointer ${border}">
 
@@ -67,9 +67,9 @@ class="bg-white p-4 rounded shadow cursor-pointer ${border}">
 </div>
 `
 
-container.innerHTML+=card
+        container.innerHTML += card
 
-})
+    })
 
 }
 
@@ -147,6 +147,6 @@ if (window.location.pathname.includes("main.html")) {
 
 
     loadAll()
-}
+};
 
 
