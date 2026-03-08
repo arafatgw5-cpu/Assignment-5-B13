@@ -73,3 +73,80 @@ container.innerHTML+=card
 
 }
 
+async function loadOpen() {
+
+    const res = await fetch(API)
+
+    const data = await res.json()
+
+    const openIssues = data.data.filter(i => i.status === "open")
+
+    displayIssues(openIssues)
+
+}
+
+
+
+async function loadClosed() {
+
+    const res = await fetch(API)
+
+    const data = await res.json()
+
+    const closedIssues = data.data.filter(i => i.status === "closed")
+
+    displayIssues(closedIssues)
+
+}
+
+
+
+// SEARCH
+
+async function searchIssues() {
+
+    const text = document.getElementById("searchInput").value
+
+    const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${text}`)
+
+    const data = await res.json()
+
+    displayIssues(data.data)
+
+}
+
+
+
+// MODAL
+
+async function openModal(id) {
+
+    const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`)
+
+    const data = await res.json()
+
+    const issue = data.data
+
+    document.getElementById("modalTitle").innerText = issue.title
+    document.getElementById("modalDescription").innerText = issue.description
+    document.getElementById("modalStatus").innerText = "Status: " + issue.status
+    document.getElementById("modalAuthor").innerText = "Author: " + issue.author
+    document.getElementById("modalPriority").innerText = "Priority: " + issue.priority
+    document.getElementById("modalLabel").innerText = "Label: " + issue.label
+    document.getElementById("modalCreated").innerText = "Created: " + issue.createdAt
+
+    document.getElementById("issueModal").showModal()
+
+}
+
+
+
+// AUTO LOAD
+
+if (window.location.pathname.includes("main.html")) {
+
+
+    loadAll()
+}
+
+
