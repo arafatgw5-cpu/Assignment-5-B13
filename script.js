@@ -36,4 +36,40 @@ displayIssues(data.data)
 
 loader.classList.add("hidden")
 
+} 
+// DISPLAY ISSUES
+
+function displayIssues(issues){
+
+container.innerHTML=""
+
+issues.forEach(issue=>{
+
+let border=issue.status==="open"
+?"border-t-4 border-green-500"
+:"border-t-4 border-purple-500"
+
+
+const card=`
+<div onclick="openModal(${issue.id})"
+class="bg-white p-4 rounded shadow cursor-pointer ${border}">
+
+<h2 class="font-bold text-lg">${issue.title}</h2>
+
+<p class="text-sm text-gray-600">${issue.description}</p>
+
+<p class="mt-2">Status: ${issue.status}</p>
+<p>Author: ${issue.author}</p>
+<p>Priority: ${issue.priority}</p>
+<p>Label: ${issue.label}</p>
+<p>Created: ${issue.createdAt}</p>
+
+</div>
+`
+
+container.innerHTML+=card
+
+})
+
 }
+
