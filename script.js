@@ -1,152 +1,227 @@
-// LOGIN
-
-function handleLogin() {
-
-    let username = document.getElementById("username").value
-    let password = document.getElementById("password").value
-
-    if (username === "admin" && password === "admin123") {
-
-        window.location.href = "main.html"
-
-    } else {
-
-        alert("Invalid credentials")
-
-    }
-
-}
 const API = "https://phi-lab-server.vercel.app/api/v1/lab/issues"
 
 const container = document.getElementById("issuesContainer")
-
 const loader = document.getElementById("loader")
 
-// LOAD ALL
+const allBtn = document.getElementById("allBtn")
+const openBtn = document.getElementById("openBtn")
+const closedBtn = document.getElementById("closedBtn")
 
-async function loadAll() {
+const totalIssues = document.getElementById("totalIssues")
+const openCount = document.getElementById("openCount")
+const closedCount = document.getElementById("closedCount")
 
-    loader.classList.remove("hidden")
+let allIssues = []
 
-    const res = await fetch(API)
 
-    const data = await res.json()
+// active tab
+function setActive(btn){
 
-    displayIssues(data.data)
+[allBtn,openBtn,closedBtn].forEach(button=>{
 
-    loader.classList.add("hidden")
+button.classList.remove("btn-active")
+button.classList.add("btn-outline")
+
+})
+
+btn.classList.add("btn-active")
+btn.classList.remove("btn-outline")
 
 }
-// DISPLAY ISSUES
-
-function displayIssues(issues) {
-
-    container.innerHTML = ""
-
-    issues.forEach(issue => {
-
-        let border = issue.status === "open"
-            ? "border-t-4 border-green-500"
-            : "border-t-4 border-purple-500"
 
 
-        const card = `
+// fetch issues
+async function fetchIssues(filter="all"){
+
+loader.classList.remove("hidden")
+
+try{
+
+const res = await fetch(API)
+const data = await res.json()
+
+allIssues = data.data
+
+updateCounts(allIssues)
+
+let issues = allIssues
+
+if(filter==="open"){
+issues = allIssues.filter(i=>i.status==="open")
+}
+
+else if(filter==="closed"){
+issues = allIssues.filter(i=>i.status==="closed")
+}
+
+displayIssues(issues)
+
+}
+
+catch(err){
+
+container.innerHTML = "<p class='text-red-500'>Failed to load issues</p>"
+
+}
+
+finally{
+
+loader.classList.add("hidden")
+
+}
+
+}
+
+
+
+// update count
+function updateCounts(issues){
+
+const open = issues.filter(i=>i.status==="open").length
+const closed = issues.filter(i=>i.status==="closed").length
+
+totalIssues.innerText = issues.length+" Issues"
+openCount.innerText = open+" Open"
+closedCount.innerText = closed+" Closed"
+
+}
+
+
+
+// display cards
+function displayIssues(issues){
+
+container.innerHTML=""
+
+issues.forEach(issue=>{
+
+const border = issue.status==="open"
+? "border-t-4 border-green-400"
+: "border-t-4 border-purple-400"
+
+
+const priorityColor =
+issue.priority==="high"
+? "badge badge-error"
+: issue.priority==="medium"
+? "badge badge-warning"
+: "badge badge-ghost"
+
+
+const card = `
 <div onclick="openModal(${issue.id})"
-class="bg-white p-4 rounded shadow cursor-pointer ${border}">
+class="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer ${border}">
 
-<h2 class="font-bold text-lg">${issue.title}</h2>
+<div class="p-4">
 
-<p class="text-sm text-gray-600">${issue.description}</p>
+<div class="flex justify-between mb-2">
 
-<p class="mt-2">Status: ${issue.status}</p>
-<p>Author: ${issue.author}</p>
-<p>Priority: ${issue.priority}</p>
-<p>Label: ${issue.label}</p>
-<p>Created: ${issue.createdAt}</p>
+<span class="${priorityColor}">
+${issue.priority.toUpperCase()}
+</span>
+
+</div>
+
+<h2 class="font-bold text-lg">
+${issue.title}
+</h2>
+
+<p class="text-gray-500 text-sm mt-1">
+${issue.description.slice(0,80)}...
+</p>
+
+</div>
+
+<div class="border-t px-4 py-2 text-sm text-gray-500">
+
+#${issue.id} by ${issue.author}
+<br>
+${issue.createdAt}
+
+</div>
 
 </div>
 `
 
-        container.innerHTML += card
+container.innerHTML += card
 
-    })
-
-}
-
-async function loadOpen() {
-
-    const res = await fetch(API)
-
-    const data = await res.json()
-
-    const openIssues = data.data.filter(i => i.status === "open")
-
-    displayIssues(openIssues)
+})
 
 }
 
 
 
-async function loadClosed() {
+// search
+function searchIssues(){
 
-    const res = await fetch(API)
+const text = document.getElementById("searchInput").value.toLowerCase()
 
-    const data = await res.json()
+if(!text){
+displayIssues(allIssues)
+return
+}
 
-    const closedIssues = data.data.filter(i => i.status === "closed")
+const filtered = allIssues.filter(issue=>
+issue.title.toLowerCase().includes(text)
+)
 
-    displayIssues(closedIssues)
+displayIssues(filtered)
 
 }
 
 
 
-// SEARCH
+// modal
+async function openModal(id){
 
-async function searchIssues() {
+const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`)
 
-    const text = document.getElementById("searchInput").value
+const issue = (await res.json()).data
 
-    const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${text}`)
+document.getElementById("modalTitle").innerText = issue.title
+document.getElementById("modalDescription").innerText = issue.description
+document.getElementById("modalStatus").innerText = "Status: "+issue.status
+document.getElementById("modalAuthor").innerText = "Author: "+issue.author
+document.getElementById("modalPriority").innerText = "Priority: "+issue.priority
+document.getElementById("modalLabel").innerText = "Label: "+issue.label
+document.getElementById("modalCreated").innerText = "Created: "+issue.createdAt
 
-    const data = await res.json()
-
-    displayIssues(data.data)
-
-}
-
-
-
-// MODAL
-
-async function openModal(id) {
-
-    const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`)
-
-    const data = await res.json()
-
-    const issue = data.data
-
-    document.getElementById("modalTitle").innerText = issue.title
-    document.getElementById("modalDescription").innerText = issue.description
-    document.getElementById("modalStatus").innerText = "Status: " + issue.status
-    document.getElementById("modalAuthor").innerText = "Author: " + issue.author
-    document.getElementById("modalPriority").innerText = "Priority: " + issue.priority
-    document.getElementById("modalLabel").innerText = "Label: " + issue.label
-    document.getElementById("modalCreated").innerText = "Created: " + issue.createdAt
-
-    document.getElementById("issueModal").showModal()
+document.getElementById("issueModal").showModal()
 
 }
 
 
 
-// AUTO LOAD
+// tab events
+allBtn.addEventListener("click",()=>{
 
-if (window.location.pathname.includes("main.html")) {
+setActive(allBtn)
+displayIssues(allIssues)
+
+})
 
 
-    loadAll()
-};
+openBtn.addEventListener("click",()=>{
+
+setActive(openBtn)
+displayIssues(allIssues.filter(i=>i.status==="open"))
+
+})
 
 
+closedBtn.addEventListener("click",()=>{
+
+setActive(closedBtn)
+displayIssues(allIssues.filter(i=>i.status==="closed"))
+
+})
+
+
+
+// load data
+window.addEventListener("DOMContentLoaded",()=>{
+
+setActive(allBtn)
+fetchIssues()
+
+})
