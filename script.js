@@ -26,7 +26,7 @@ const closedCount = document.getElementById("closedCount")
 let allIssues = []
 
 
-// active tab
+
 function setActive(btn){
 
 [allBtn,openBtn,closedBtn].forEach(button=>{
@@ -42,8 +42,8 @@ btn.classList.remove("btn-outline")
 }
 
 
-// fetch issues
-async function fetchIssues(filter="all"){
+
+async function fetchIssues(){
 
 loader.classList.remove("hidden")
 
@@ -56,23 +56,14 @@ allIssues = data.data
 
 updateCounts(allIssues)
 
-let issues = allIssues
-
-if(filter==="open"){
-issues = allIssues.filter(i=>i.status==="open")
-}
-
-else if(filter==="closed"){
-issues = allIssues.filter(i=>i.status==="closed")
-}
-
-displayIssues(issues)
+displayIssues(allIssues)
 
 }
 
 catch(err){
 
-container.innerHTML = "<p class='text-red-500'>Failed to load issues</p>"
+container.innerHTML =
+"<p class='text-red-500'>Failed to load issues</p>"
 
 }
 
@@ -86,7 +77,6 @@ loader.classList.add("hidden")
 
 
 
-// update count
 function updateCounts(issues){
 
 const open = issues.filter(i=>i.status==="open").length
@@ -100,14 +90,14 @@ closedCount.innerText = closed+" Closed"
 
 
 
-// display cards
 function displayIssues(issues){
 
 container.innerHTML=""
 
 issues.forEach(issue=>{
 
-const border = issue.status==="open"
+const border =
+issue.status==="open"
 ? "border-t-4 border-green-400"
 : "border-t-4 border-purple-400"
 
@@ -122,7 +112,7 @@ issue.priority==="high"
 
 const card = `
 <div onclick="openModal(${issue.id})"
-class="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer ${border}">
+class="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer w-full ${border}">
 
 <div class="p-4">
 
@@ -163,14 +153,18 @@ container.innerHTML += card
 
 
 
-// search
 function searchIssues(){
 
-const text = document.getElementById("searchInput").value.toLowerCase()
+const text =
+document.getElementById("searchInput")
+.value
+.toLowerCase()
 
 if(!text){
+
 displayIssues(allIssues)
 return
+
 }
 
 const filtered = allIssues.filter(issue=>
@@ -183,20 +177,36 @@ displayIssues(filtered)
 
 
 
-// modal
 async function openModal(id){
 
-const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`)
+const res =
+await fetch(
+`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`
+)
 
-const issue = (await res.json()).data
+const issue =
+(await res.json()).data
 
-document.getElementById("modalTitle").innerText = issue.title
-document.getElementById("modalDescription").innerText = issue.description
-document.getElementById("modalStatus").innerText = "Status: "+issue.status
-document.getElementById("modalAuthor").innerText = "Author: "+issue.author
-document.getElementById("modalPriority").innerText = "Priority: "+issue.priority
-document.getElementById("modalLabel").innerText = "Label: "+issue.label
-document.getElementById("modalCreated").innerText = "Created: "+issue.createdAt
+document.getElementById("modalTitle").innerText =
+issue.title
+
+document.getElementById("modalDescription").innerText =
+issue.description
+
+document.getElementById("modalStatus").innerText =
+"Status: "+issue.status
+
+document.getElementById("modalAuthor").innerText =
+"Author: "+issue.author
+
+document.getElementById("modalPriority").innerText =
+"Priority: "+issue.priority
+
+document.getElementById("modalLabel").innerText =
+"Label: "+issue.label
+
+document.getElementById("modalCreated").innerText =
+"Created: "+issue.createdAt
 
 document.getElementById("issueModal").showModal()
 
@@ -204,7 +214,6 @@ document.getElementById("issueModal").showModal()
 
 
 
-// tab events
 allBtn.addEventListener("click",()=>{
 
 setActive(allBtn)
@@ -216,7 +225,10 @@ displayIssues(allIssues)
 openBtn.addEventListener("click",()=>{
 
 setActive(openBtn)
-displayIssues(allIssues.filter(i=>i.status==="open"))
+
+displayIssues(
+allIssues.filter(i=>i.status==="open")
+)
 
 })
 
@@ -224,13 +236,15 @@ displayIssues(allIssues.filter(i=>i.status==="open"))
 closedBtn.addEventListener("click",()=>{
 
 setActive(closedBtn)
-displayIssues(allIssues.filter(i=>i.status==="closed"))
+
+displayIssues(
+allIssues.filter(i=>i.status==="closed")
+)
 
 })
 
 
 
-// load data
 window.addEventListener("DOMContentLoaded",()=>{
 
 setActive(allBtn)
